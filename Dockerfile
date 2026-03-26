@@ -1,7 +1,7 @@
-# Step 1: Base Image (official PHP 8.4-fpm based on Debian)
-FROM php:8.4.16-fpm
+# Production-Ready Standalone Dockerfile for ReportMyCity
+FROM php:8.4-apache
 
-# Step 2: System Dependencies
+# 1. System Dependencies
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
@@ -15,22 +15,27 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     libssl-dev
 
-# Step 3: Install PHP Extensions
+# 2. Apache Rewrite Module
+RUN a2enmod rewrite
+
+# 3. Base PHP Extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Step 4: Install MongoDB extension using PECL
+# 4. MongoDB extension via PECL
 RUN pecl install mongodb && docker-php-ext-enable mongodb
 
-# Step 5: Install Composer
+# 5. Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Step 6: App Directory Setup
-WORKDIR /var/www/reportmycity
+# 6. Copy code
+WORKDIR /var/www/html
+COPY . .
 
-# Step 7: Final Permissions
-RUN chown -R www-data:www-data /var/www/reportmycity
+# 7. Environment & Permissions
+# Create uploads folder if missing
+RUN mkdir -p uploads/complaints && chmod -R 775 uploads
+RUN chown -R www-data:www-data /var/www/html
 
-# Expose PHP-FPM port
-EXPOSE 9000
-
-CMD ["php-fpm"]
+# 8. Start-up
+EXPOSE 80
+CMD ["apache2-foreground"]
