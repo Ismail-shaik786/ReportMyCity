@@ -1,9 +1,0 @@
-.git
-.env
-mongodb_data
-vendor
-php_server.log
-php_server.pid
-Dockerfile
-docker-compose.yml
-render.yaml
