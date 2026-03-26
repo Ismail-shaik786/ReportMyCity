@@ -6,8 +6,8 @@ session_start();
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-// Load .env if not already loaded
-if (!isset($_ENV['SMTP_HOST'])) {
+// Load .env variables only if they exist (local development)
+if (file_exists(__DIR__ . '/../.env')) {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
     $dotenv->load();
 }

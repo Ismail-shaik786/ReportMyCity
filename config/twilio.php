@@ -9,8 +9,8 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Load .env variables (safe to call multiple times — returns early if already loaded)
-if (!isset($_ENV['TWILIO_ACCOUNT_SID'])) {
+// Load .env variables only if they exist (local development)
+if (file_exists(__DIR__ . '/../.env')) {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
     $dotenv->load();
 }

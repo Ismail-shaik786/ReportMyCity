@@ -12,11 +12,13 @@ class Mailer {
      * Send a standardized email
      */
     public static function send($toEmail, $toName, $subject, $bodyHtml, $fallbackText = '', $attachments = []) {
-        // Load .env if not already loaded
-        if (!isset($_ENV['SMTP_HOST'])) {
+        // Load .env if not already loaded (local only)
+        if (file_exists(__DIR__ . '/..')) {
             try {
-                $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
-                $dotenv->load();
+                if (file_exists(__DIR__ . '/../.env')) {
+                    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+                    $dotenv->load();
+                }
             } catch (Exception $e) {
                 error_log("Mailer: Failed to load .env");
             }
