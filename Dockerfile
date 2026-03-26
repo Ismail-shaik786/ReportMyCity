@@ -31,6 +31,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
+# 6b. Install Dependencies during build
+RUN composer install --no-dev --optimize-autoloader
+
 # 7. Environment & Permissions
 # Create uploads folder if missing
 RUN mkdir -p uploads/complaints && chmod -R 775 uploads
