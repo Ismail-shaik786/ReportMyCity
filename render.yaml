@@ -1,0 +1,37 @@
+# render.yaml — Blueprint Configuration for ReportMyCity
+services:
+  - type: web
+    name: report-my-city-portal
+    env: docker
+    plan: free
+    region: ams
+    branch: main
+    
+    # Environment Variable Secrets (User needs to fill them in Render Dashboard)
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB
+        value: reportmycity
+      - key: ADMIN_EMAIL
+        value: admin@reportmycity.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM_EMAIL
+        sync: false
+      - key: SMTP_FROM_NAME
+        value: "ReportMyCity Support"
+      
+    # Automatic Health Check
+    healthCheckPath: /index.php
+    
+    # Enable Auto-Scale if needed (Standard plans)
+    autoDeploy: true
