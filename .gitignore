@@ -1,0 +1,6 @@
+mongodb_data/
+*.log
+node_modules/
+.env
+vendor/
+.env.example

@@ -1,0 +1,103 @@
+# 🗄️ ReportMyCity — Database Structure Documentation
+
+This document outlines the **MongoDB** database schema used by the ReportMyCity Official Portal. The database is hosted on a local MongoDB instance and managed via the [Database](file:///home/ismail/Desktop/antigraviti/reportmycity/config/database.php#13-85) singleton in PHP.
+
+---
+
+## 🏗️ Architecture Overview
+
+- **Database Name**: `reportmycity`
+- **Engine**: MongoDB (NoSQL)
+- **Primary Key**: `_id` (Auto-generated `ObjectId`)
+- **Connection**: `mongodb://localhost:27017`
+
+---
+
+## 📂 Collections Summary
+
+### 1. `admins`
+Stores administrative accounts responsible for managing the portal, assigning officers, and reviewing complaints.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | Full name of the administrator. |
+| `email` | `string` | Unique email for login. |
+| `password` | `string` | BCrypt hashed password. |
+| `role` | `string` | Always set to `admin`. |
+| `created_at` | `string` | ISO formatted timestamp (`Y-m-d H:i:s`). |
+
+---
+
+### 2. `users`
+Stores citizen accounts for reporting civic issues and tracking their history.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | Citizen's full name. |
+| `email` | `string` | Unique email for login. |
+| `phone` | `string` | Unique verified 10-digit mobile number. |
+| `password` | `string` | BCrypt hashed password. |
+| `role` | `string` | Always set to `user`. |
+| `created_at` | `string` | ISO formatted timestamp. |
+
+---
+
+### 3. `officers`
+Stores field officer accounts (the workforce) assigned by admins to resolve specific complaints.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | Officer's full name. |
+| `email` | `string` | Professional email. |
+| `phone` | `string` | Mobile number for contact. |
+| `password` | `string` | BCrypt hashed password. |
+| `role` | `string` | Always set to `officer`. |
+| `created_at` | `string` | ISO formatted timestamp. |
+
+---
+
+### 4. `complaints`
+The core collection storing all civic reports, their tracking history, and cross-references.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `user_id` | `ObjectId/String` | Reference to the `users` collection. |
+| `title` | `string` | Short title of the issue. |
+| `category` | `string` | Category (e.g., Road Damage, Garbage, Water Leakage). |
+| `description` | `string` | Detailed text description of the issue. |
+| `location` | `string` | Descriptive location string (e.g., Crossway 21). |
+| `image` | `string` | Relative path to user-uploaded photo. |
+| `date` | `string` | User-reported date of incident. |
+| `status` | `string` | `Pending`, `In Progress`, `Officer Completed`, `Resolved`. |
+| `admin_reply` | `string` | Official feedback from the administrator. |
+| `officer_notes` | `string` | Progress report or final resolution notes from the officer. |
+| `officer_proof_image` | `string` | Photo evidence uploaded by officer after work is done. |
+| `assigned_officer_id` | `String` | Reference to the `officers` collection. |
+| `assigned_officer_name` | `string` | Mirroring officer name for easy retrieval. |
+| `additional_user_ids` | `array` | List of `user_id`s who reported the same issue (merged). |
+| `created_at` | `string` | ISO formatted timestamp. |
+
+---
+
+### 5. `notifications`
+Stores system alerts for real-time dashboard updates across all roles.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `user_id` | `String` | Target recipient ID (optional for role-based alerts). |
+| `role` | `string` | Target access level (`admin`, `officer`, or `user`). |
+| `message` | `string` | Visible alert content. |
+| `is_read` | `boolean` | Read/Unread status tracker. |
+| `created_at` | `string` | ISO formatted timestamp. |
+
+---
+
+## <i class="la la-bolt"></i> Indexing Strategy (Recommended)
+
+To ensure high performance as the platform scales, the following indexes are implemented or recommended:
+
+- **Users/Officers**: Unique index on `email`.
+- **Users**: Unique index on `phone`.
+- **Complaints**: Compounded index on `status` and `created_at` for dashboard queries.
+- **Complaints**: Geospatial or text index on `location` for duplicate detection.
+- **Notifications**: Index on `user_id` and `is_read` for quick alert counts.
